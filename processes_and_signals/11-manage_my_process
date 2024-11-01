@@ -1,28 +1,29 @@
 #!/usr/bin/env bash
-#manage
-if [[ "$#" == "1" ]]; then
-   if [[ "$1" == "start" ]]; then
-      ./manage_my_proces &
-      echo "$!" > /var/run/my_process.pid
-      echo "manage_my_process started"
-   elif [[ "$1" == "stop" ]]; then
-      if test -f "/var/run/my_process.pid"; then
-	kill "$(cat /var/run/my_process.pid)"
-      fi  
-      rm /var/run/my_process.pid
-      echo "manage_my_process stopped"
-   elif [[ "$1" == "restart" ]]; then
-     # stop program
-     if test -f "/var/run/my_process.pid"; then
-        kill "$(cat /var/run/my_process.pid)"
-     fi 
-     # start program
-     ./manage_my_process &
-     echo "$!" > /var/run/my_process.pid
-     echo "manage_my_process restarted"
-   else
-      echo "Usage: manage_my_process {start|stop|restart}"
-   fi
-   else
-    echo "Usage: manage_my_process {start|stop|restart}"
-   fi   
+# Check if manage_my_process is running
+is_running() {
+    [ -f "/var/run/my_process.pid" ] && kill -0 $(cat /var/run/my_process.pid) 2>/dev/null
+}
+
+case "$1" in
+    start)
+        if is_running; then
+            echo "manage_my_process is already running."
+        else
+            /path/to/manage_my_process start
+        fi
+        ;;
+    stop)
+        if is_running; then
+            /path/to/manage_my_process stop
+        else
+            echo "manage_my_process is not running."
+        fi
+        ;;
+    restart)
+        /path/to/manage_my_process restart
+        ;;
+    *)
+        echo "Usage: manage_my_process {start|stop|restart}"
+        ;;
+iesac
+

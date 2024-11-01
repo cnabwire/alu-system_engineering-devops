@@ -1,6 +1,54 @@
 #!/usr/bin/env bash
-# manage my files
-while [[ 1 -eq 1 ]]; do
-      echo "I am alive" >> /tmp/my_process
-      sleep 2
-done
+OUTPUT_FILE="/tmp/my_process"
+PID_FILE="/var/run/my_process.pid"
+
+# Function to start the process
+start_process() {
+    if [ -f "$PID_FILE" ]; then
+        echo "Process is already running."
+        return
+    fi
+
+    # Start the process in the background
+    (while true; do
+        echo "I am alive!" >> "$OUTPUT_FILE"
+        sleep 2
+    done) &
+    
+    # Save the PID of the background process
+    echo $! > "$PID_FILE"
+    echo "manage_my_process started"
+}
+
+# Function to stop the process
+stop_process() {
+    if [ -f "$PID_FILE" ]; then
+        kill $(cat "$PID_FILE") && rm "$PID_FILE"
+        echo "manage_my_process stopped"
+    else
+        echo "Process not running."
+    fi
+}
+
+# Function to restart the process
+restart_process() {
+    stop_process
+    start_process
+    echo "manage_my_process restarted"
+}
+
+# Main logic for managing the script
+case "$1" in
+    start)
+        start_process
+        ;;
+    stop)
+        stop_process
+        ;;
+    restart)
+        restart_process
+        ;;
+    *)
+        echo "Usage: manage_my_process {start|stop|restart}"
+        ;;
+esac
