@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# 14-dig_the_data - Group visitors by IP and HTTP status code
+#13-lets_parse_apache_logs
+# print ip and status code from a log
 
-# Parse the log file, sort, count occurrences, and format output
-awk '{print $1 " " $9}' apache-cache.log | sort | uniq -c | sort -rn
+awk '{print $1 " " $9}' apache-access.log | sort | uniq -c | sort -rm
