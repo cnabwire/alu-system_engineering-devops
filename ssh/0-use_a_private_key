@@ -1,6 +1,5 @@
-#!/bin/bash
-
+#!/usr/bin/env bash
 # filepath: connect_to_server.sh
 
 # Connect to the server using ssh with the private key ~/.ssh/school and user ubuntu
-ssh -i /root/.ssh/school ubuntu@13.221.163.227
+ssh -i ~/.ssh/school ubuntu@13.221.163.227
