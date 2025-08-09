@@ -1,2 +1,1 @@
-<<<<<<< HEAD
 This file is not empty

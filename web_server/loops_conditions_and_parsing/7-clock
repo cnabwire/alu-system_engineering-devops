@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+# This script displays "Hour" followed by the numbers from 1 to 59 for each hour.
+
+var="Hour"
+h=0
+while [ "$h" -le 12 ]; do
+    echo "$var:" "$h"
+    s="1"
+    while [ "$s" -le 59 ]; do
+        echo "$s"
+        ((s++))
+    done
+    ((h++))  # Increment the hour counter
+done
+
