@@ -2,14 +2,14 @@
 # This script installs and configures Nginx on an Ubuntu server
 
 # Update package lists and install Nginx
-apt-get -y  update
+apt-get -y update
 apt-get -y install nginx
 
-# Ensure Nginx is listening on port 80
-sed -i 's/listen 80 default_server;/listen 80;/' /etc/nginx/sites-available/default
+# Ensure Nginx listens on port 80 without 'default_server' (more robust sed)
+sed -i 's/listen\s\+80\s\+default_server;/listen 80;/' /etc/nginx/sites-available/def
 
-# Replace the default Nginx page with the required content
-echo "Holberton School for the win!" > /var/www/html/index.nginx-debian.html
+# Overwrite the main index page with the required text
+echo "Holberton School for the win!" > /var/www/html/index.html
 
-# Restart Nginx without using systemctl
-service nginx start
+# Reload nginx so it picks up changes
+nginx -s reload
