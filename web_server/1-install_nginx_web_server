@@ -5,8 +5,8 @@ apt-get update -y
 apt-get install -y nginx
 
 # Ensure nginx starts on boot
-systemctl enable nginx
-systemctl start nginx
+update-rc.d nginx defaults
+sudo service nginx restart 
 
 # Create web root and exact index content
 mkdir -p /var/www/html
@@ -27,16 +27,12 @@ server {
         try_files $uri $uri/ =404;
     }
 
-    location /redirect_me {
-        return 301 https://www.youtube.com/watch?v=QH2-TGUlwu4;
-    }
-
     error_page 404 /custom_404.html;
 }
 EOF
 
 # Create custom error page
-printf "Ceci n'est pas une page" > /var/www/html/custom_404.html
+printf "Page not found" > /var/www/html/custom_404.html
 
 # Restart nginx to apply changes
-systemctl restart nginx
+sudo service nginx restart
