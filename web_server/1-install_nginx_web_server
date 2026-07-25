@@ -1,5 +1,3 @@
-cd /home/alu-system_engineering-devops/web_server
-cat > 1-install_nginx_web_server <<'EOF'
 #!/usr/bin/env bash
 # Installs and configures Nginx to serve the required page on port 80
 
@@ -34,6 +32,4 @@ nginx -t
 service nginx restart || service nginx start
 EOF
 
-chmod +x 1-install_nginx_web_server
-./1-install_nginx_web_server
 curl 127.0.0.1
