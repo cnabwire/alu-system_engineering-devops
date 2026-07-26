@@ -1,17 +1,26 @@
 #!/usr/bin/env bash
-# Script that configures Nginx with a 301 redirect
+# Script that configures Nginx with a 301 redirect for /redirect_me
 
-# Update package list
 apt-get update -y
-
-# Install nginx
 apt-get install nginx -y
 
-# Create the index page with required content
+mkdir -p /var/www/html
 echo "Holberton School" > /var/www/html/index.html
 
-# Add redirect rule to nginx config
-sed -i '/server_name _;/a \\n\trewrite ^/redirect_me https://www.youtube.com/watch?v=QH2-TGUlwu4 permanent;' /etc/nginx/sites-available/default
+cat > /etc/nginx/sites-available/default <<'EOF'
+server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
 
-# Start nginx service (without systemctl)
+    root /var/www/html;
+    index index.html index.htm;
+
+    server_name _;
+
+    location = /redirect_me {
+        return 301 https://www.youtube.com/watch?v=DCPaODOk_hc;
+    }
+}
+EOF
+
 service nginx restart
