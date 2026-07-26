@@ -8,9 +8,16 @@ apt-get update -y
 apt-get install -y nginx
 
 mkdir -p /var/www/html
+<<<<<<< HEAD
 printf 'Holberton School\n' > /var/www/html/index.html
 
 rm -f /etc/nginx/sites-enabled/default
+=======
+cat > /var/www/html/index.html <<'HTML'
+Holberton School for the win!
+HTML
+
+>>>>>>> 08285c2092ca2a66a0aca3059927952c08acced1
 cat > /etc/nginx/sites-available/default <<'CONF'
 server {
     listen 80 default_server;
@@ -20,14 +27,23 @@ server {
     index index.html;
 
     server_name _;
-
+    
     location / {
         try_files $uri $uri/ =404;
     }
 }
 CONF
+<<<<<<< HEAD
 
 ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
 
 nginx -t
 service nginx restart || service nginx start
+=======
+
+nginx -t
+service nginx restart || service nginx start
+EOF
+
+curl 127.0.0.1
+>>>>>>> 08285c2092ca2a66a0aca3059927952c08acced1
