@@ -13,7 +13,7 @@ printf 'Holberton School\n' > /var/www/html/index.html
 
 rm -f /etc/nginx/sites-enabled/default
 cat > /var/www/html/index.html <<'HTML'
-Holberton School for the win!
+Holberton School
 HTML
 
 
