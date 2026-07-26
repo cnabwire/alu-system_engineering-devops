@@ -1,38 +1,33 @@
 #!/usr/bin/env bash
-# Sets up Nginx to meet ALU checker requirements
+# Installs and configures Nginx to serve the required page on port 80
+
+set -e
+export DEBIAN_FRONTEND=noninteractive
 
 apt-get update -y
 apt-get install -y nginx
 
-# Ensure nginx starts on boot
-update-rc.d nginx defaults
-sudo service nginx restart 
-
-# Create web root and exact index content
 mkdir -p /var/www/html
-printf "Holberton School" > /var/www/html/index.html
+printf 'Holberton School\n' > /var/www/html/index.html
 
-# Configure nginx to use our web root
-cat > /etc/nginx/sites-available/default << 'EOF'
+rm -f /etc/nginx/sites-enabled/default
+cat > /etc/nginx/sites-available/default <<'CONF'
 server {
     listen 80 default_server;
     listen [::]:80 default_server;
 
     root /var/www/html;
-    index index.html index.htm;
+    index index.html;
 
     server_name _;
 
     location / {
         try_files $uri $uri/ =404;
     }
-
-    error_page 404 /custom_404.html;
 }
-EOF
+CONF
 
-# Create custom error page
-printf "Page not found" > /var/www/html/custom_404.html
+ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
 
-# Restart nginx to apply changes
-sudo service nginx restart
+nginx -t
+service nginx restart || service nginx start
