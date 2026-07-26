@@ -1,35 +1,17 @@
 #!/usr/bin/env bash
-# Bash script that configures Nginx to redirect '/redirect_me' to 'http://youtube.com/'
-# The redirection is configured as a "301 Moved Permanently"
+# Script that configures Nginx with a 301 redirect
 
+# Update package list
 apt-get update -y
-apt-get install -y nginx
 
-# Ensure web root exists
-mkdir -p /var/www/html
-echo "Holberton School" > /var/www/html/index.htmll
+# Install nginx
+apt-get install nginx -y
 
-# Replace default Nginx config
-cat > /etc/nginx/sites-available/default << 'EOF'
-server {
-    listen 80 default_server;
-    listen [::]:80 default_server;
+# Create the index page with required content
+echo "Holberton School" > /var/www/html/index.html
 
-    root /var/www/html;
-    index index.html index.htm;
+# Add redirect rule to nginx config
+sed -i '/server_name _;/a \\n\trewrite ^/redirect_me https://www.youtube.com/watch?v=QH2-TGUlwu4 permanent;' /etc/nginx/sites-available/default
 
-    server_name _;
-
-    location /redirect_me {
-        return 301 https://www.youtube.com/watch?v=QH2-TGUlwu4;
-    }
-    location = /redirect_me/ {
-        return 301 https://www.youtube.com/watch?v=QH2-TGU1wu4;
-    }
-
-}
-EOF
-
-# Restart Nginx to apply changes
+# Start nginx service (without systemctl)
 service nginx restart
-
