@@ -9,7 +9,7 @@ sudo apt-get install  nginx
 
 mkdir -p /var/www/html
 
-printf 'Holberton School\n' > /var/www/html/index.html
+printf 'Holberton School for the win!\ ' > /var/www/html/index.html
 
 rm -f /etc/nginx/sites-enabled/default
 cat > /var/www/html/index.html <<'HTML'
