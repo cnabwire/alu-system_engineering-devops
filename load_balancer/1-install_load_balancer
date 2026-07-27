@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+# Installs and configures HAProxy on a fresh Ubuntu machine to load
+# balance traffic between web-01 and web-02 using round-robin.
+#
+#
+
+apt-get update -y
+apt-get install -y haproxy
+
+# Enable HAProxy so the init script will actually start it
+# (disabled by default on Debian/Ubuntu packages)
+sed -i 's/^ENABLED=.*/ENABLED=1/' /etc/default/haproxy
+
+cat >> /etc/haproxy/haproxy.cfg << 'EOF'
+
+frontend http_front
+    mode http
+    bind *:80
+    stats uri /haproxy?stats
+    default_backend web_server
+
+backend web_server
+    mode http
+    balance roundrobin
+    server web01 172.25.0.11:80 check
+    server web02 172.25.0.12:80 check
+EOF
+
+service haproxy restart
