@@ -4,17 +4,23 @@
 set -e
 export DEBIAN_FRONTEND=noninteractive
 
+if command -v sudo >/dev/null 2>&1; then
+    SUDO=sudo
+else
+    SUDO=""
+fi
+
 # Update package lists and install Nginx
 echo "Updating package lists..."
-apt-get update -y
+$SUDO apt-get update -y
 
 echo "Installing Nginx..."
-apt-get install -y nginx
+$SUDO apt-get install -y nginx
 
 # Create the web page
 echo "Creating the web page..."
 mkdir -p /var/www/html
-printf 'Holberton School\n' > /var/www/html/index.html
+printf 'Holberton School for the win!\n' > /var/www/html/index.html
 
 # Write the Nginx server block
 echo "Writing the Nginx server block..."
@@ -36,18 +42,18 @@ CONF
 
 # Enable the default site
 echo "Enabling the default site..."
-ln -sf /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
+$SUDO ln -sf /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
 
 # Validate and start Nginx
 echo "Testing the Nginx configuration..."
-nginx -t
+$SUDO nginx -t
 
 echo "Starting Nginx..."
-service nginx restart || service nginx start
+$SUDO service nginx restart || $SUDO service nginx start
 
 # Show the listening port and response
 echo "Nginx listening on:"
-ss -ltn | grep ':80 '
+$SUDO ss -ltn | grep ':80 '
 
 echo "Response from localhost:"
 curl -s http://localhost
