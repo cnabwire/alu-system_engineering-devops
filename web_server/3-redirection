@@ -4,20 +4,25 @@
 set -e
 
 # Update and install Nginx
+echo "Updating package lists and installing Nginx..."
 sudo apt-get update -y
 sudo apt-get install -y nginx
-# Nginx installed
+echo "Nginx installed"
 sudo service nginx reload
+echo "Testing Nginx configuration..."
 sudo nginx -t
 
 # Create the web page
+echo "Creating the web page..."
 sudo mkdir -p /var/www/html
 printf 'Holberton School\n' | sudo tee /var/www/html/index.html > /dev/null
-# Index page created
+echo "Index page created"
 sudo service nginx reload
+echo "Testing Nginx configuration..."
 sudo nginx -t
 
 # Write the Nginx server block
+echo "Writing the Nginx server block..."
 sudo printf '%s\n' 'server {' \
     '    listen 80 default_server;' \
     '    listen [::]:80 default_server;' \
@@ -28,17 +33,21 @@ sudo printf '%s\n' 'server {' \
     '        try_files $uri $uri/ =404;' \
     '    }' \
     '}' > /etc/nginx/sites-available/default
-# Server block written
+echo "Server block written"
 sudo service nginx reload
+echo "Testing Nginx configuration..."
 sudo nginx -t
 
 # Enable the default site
+echo "Enabling the default site..."
 sudo ln -sf /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
-# Default site enabled
+echo "Default site enabled"
 sudo service nginx reload
+echo "Testing Nginx configuration..."
 sudo nginx -t
 
 # Show the listening port
+echo "Nginx is listening on:"
 sudo ss -ltn | grep ':80 '
-# Current response from localhost
+echo "Current response from localhost:"
 curl -s http://localhost
