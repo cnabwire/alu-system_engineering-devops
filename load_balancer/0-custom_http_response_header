@@ -17,10 +17,6 @@ printf 'Holberton School\n' > /var/www/html/index.html
 ln -sf /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
 
 cat > /etc/nginx/sites-available/default <<'EOF'
-
-#
-cd /etc/nginx/hostname
-
 server {
     listen 80 default_server;
     listen [::]:80 default_server;
@@ -29,9 +25,9 @@ server {
     index index.html index.htm;
 
     server_name _;
-    add_header X-Served-By $hostname;
+    add_header X-Served-By $hostname always;
 }
-
+EOF
 
 nginx -t
-service nginx restart
+service nginx restart || systemctl restart nginx
