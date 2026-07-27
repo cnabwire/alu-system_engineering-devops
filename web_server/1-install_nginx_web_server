@@ -4,19 +4,20 @@
 set -e
 export DEBIAN_FRONTEND=noninteractive
 
-sudo apt-get update
-sudo apt-get install  nginx
+# Update package lists and install Nginx
+echo "Updating package lists..."
+apt-get update -y
 
+echo "Installing Nginx..."
+apt-get install -y nginx
+
+# Create the web page
+echo "Creating the web page..."
 mkdir -p /var/www/html
+printf 'Holberton School\n' > /var/www/html/index.html
 
-printf 'Holberton School for the win!\ ' > /var/www/html/index.html
-
-rm -f /etc/nginx/sites-enabled/default
-cat > /var/www/html/index.html <<'HTML'
-Holberton School
-HTML
-
-
+# Write the Nginx server block
+echo "Writing the Nginx server block..."
 cat > /etc/nginx/sites-available/default <<'CONF'
 server {
     listen 80 default_server;
@@ -26,33 +27,27 @@ server {
     index index.html;
 
     server_name _;
-    
+
     location / {
         try_files $uri $uri/ =404;
     }
 }
 CONF
 
+# Enable the default site
+echo "Enabling the default site..."
+ln -sf /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
 
-ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
-
+# Validate and start Nginx
+echo "Testing the Nginx configuration..."
 nginx -t
-<<<<<<< HEAD
-sudo service nginx restart || sudo service nginx start
-=======
 
-nginx -t
-sudo service nginx restart || sudo service nginx start
-EOF
-
-curl localhost
->>>>>>> 08285c2092ca2a66a0aca3059927952c08acced1
-=======
+echo "Starting Nginx..."
 service nginx restart || service nginx start
 
+# Show the listening port and response
+echo "Nginx listening on:"
+ss -ltn | grep ':80 '
 
-nginx -t
-service nginx restart || service nginx start
-
-curl 127.0.0.1
->>>>>>> 140a519e7ef02401be6e627966e1dda165c1eec9
+echo "Response from localhost:"
+curl -s http://localhost
