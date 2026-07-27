@@ -38,12 +38,12 @@ CONF
 ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
 
 nginx -t
-service nginx restart || service nginx start
+sudo service nginx restart || sudo service nginx start
 =======
 
 nginx -t
-service nginx restart || service nginx start
+sudo service nginx restart || sudo service nginx start
 EOF
 
-curl 127.0.0.1
+curl localhost
 >>>>>>> 08285c2092ca2a66a0aca3059927952c08acced1
