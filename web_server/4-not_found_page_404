@@ -5,15 +5,28 @@ apt-get update
 apt-get install -y nginx
 
 echo "Hello World!" > /var/www/html/index.html
-
-# Redirect block from 3-redirection
-sed -i '/listen 80 default_server;/a\
-    location /redirect_me { return 301 https://www.youtube.com/watch?v=QH2-TGUlwu4; }' /etc/nginx/sites-available/default
-
-# Custom 404 page
 echo "Ceci n'est pas une page" > /var/www/html/404.html
 
-sed -i '/listen 80 default_server;/a\
-    error_page 404 /404.html;' /etc/nginx/sites-available/default
+cat > /etc/nginx/sites-available/default << 'EOF'
+server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
+
+    root /var/www/html;
+    index index.html index.htm;
+
+    server_name _;
+
+    location / {
+        try_files $uri $uri/ =404;
+    }
+
+    location /redirect_me {
+        return 301 https://www.youtube.com/watch?v=QH2-TGUlwu4;
+    }
+
+    error_page 404 /404.html;
+}
+EOF
 
 service nginx restart
