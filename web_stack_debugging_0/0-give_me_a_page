@@ -1,7 +1,16 @@
 #!/usr/bin/env bash
+# Start Apache and serve the required page
 
-# Start the Apache web server inside the container
-apache2ctl start
+set -e
 
-# Create the index page with the required content
+if ! command -v apache2 >/dev/null 2>&1; then
+    apt-get update
+    apt-get install -y apache2
+fi
+
+if ! pgrep -x apache2 >/dev/null 2>&1; then
+    service apache2 start || apache2ctl -k start
+fi
+
 echo "Hello Holberton" > /var/www/html/index.html
+echo "apache2 is running"
