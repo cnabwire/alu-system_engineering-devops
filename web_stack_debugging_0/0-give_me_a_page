@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+# Start the Apache web server inside the container
+apache2ctl start
+
+# Create the index page with the required content
+echo "Hello Holberton" > /var/www/html/index.html
