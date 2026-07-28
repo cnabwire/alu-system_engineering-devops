@@ -1,31 +1,32 @@
 #!/usr/bin/env bash
-# Installs HAProxy version 1.8 with the following configurations:
-#+    Enables management via the init script.
-#+    Distributes requests using a round-robin algorithm.
+# Installs HAProxy and configures a round-robin load balancer for web-01 and web-02.
+
+set -e
 
 apt-get update
 apt-get install -y haproxy
 
-echo "ENABLED=1" >> /etc/default/haproxy
-mv /etc/haproxy/haproxy.cfg{,.original}
+echo "ENABLED=1" > /etc/default/haproxy
+mv /etc/haproxy/haproxy.cfg /etc/haproxy/haproxy.cfg.original 2>/dev/null || true
 touch /etc/haproxy/haproxy.cfg
 
-printf %s "global
+cat > /etc/haproxy/haproxy.cfg <<EOF
+global
     log /dev/log local0
     maxconn 2000
     user haproxy
     group haproxy
 
 defaults
-    log     global
-    mode    http
-    option  httplog
-    option  dontlognull
+    log global
+    mode http
+    option httplog
+    option dontlognull
     retries 3
     option redispatch
-    timeout connect  5000
-    timeout client  10000
-    timeout server  10000
+    timeout connect 5000
+    timeout client 10000
+    timeout server 10000
 
 listen hbnb
     bind 0.0.0.0:80
@@ -35,8 +36,9 @@ listen hbnb
     balance roundrobin
     option httpclose
     option forwardfor
-    server 6372-web-01 18.207.206.203:80 check
-    server 6372-web-02 54.211.113.26:80 check
-" >> /etc/haproxy/haproxy.cfg
+    server web-01 172.25.0.11:80 check
+    server web-02 172.25.0.12:80 check
+EOF
 
+echo "Configured HAProxy to balance traffic between web-01 and web-02"
 service haproxy start
