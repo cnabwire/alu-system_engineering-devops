@@ -43,12 +43,9 @@ Host *
 #   EscapeChar ~
 #   Tunnel no
 #   TunnelDevice any:any
-#   PermitLocalCommand no
-#   VisualHostKey no
-#   ProxyCommand ssh -q -W %h:%p gateway.example.com
-#   RekeyLimit 1G 1h
+#   PermitLocalCommand 
     SendEnv LANG LC_*
     HashKnownHosts yes
     GSSAPIAuthentication yes
-    IdentityFile ~/.ssh/holberton
+    IdentityFile ~/.ssh/school
     PasswordAuthentication no
