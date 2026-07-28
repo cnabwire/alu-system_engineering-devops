@@ -1,33 +1,34 @@
 #!/usr/bin/env bash
-# Configures Nginx to add a custom X-Served-By header
+# Script that configures Nginx with a custom HTTP response header
 
-set -e
+# Update package list
+apt-get update -y
 
-if [ "$(id -u)" -ne 0 ]; then
-    echo "Please run this script as root or with sudo." >&2
-    exit 1
+# Install nginx
+apt-get install nginx -y
+
+# Get the hostname of the server
+HOSTNAME=$(hostname)
+
+# Backup original default config
+cp /etc/nginx/sites-available/default /etc/nginx/sites-available/default.backup
+
+# Add the custom header to the nginx config
+# Insert the add_header directive in the server block
+sed -i "/server_name _;/a \\\tadd_header X-Served-By $HOSTNAME;" /etc/nginx/sites-available/default
+
+# If the above doesn't work (server_name not found), try another approach
+# Add it after the 'listen' directives
+if ! grep -q "X-Served-By" /etc/nginx/sites-available/default; then
+    sed -i "/listen \[::\]:80 default_server;/a \\\tadd_header X-Served-By $HOSTNAME;" /etc/nginx/sites-available/default
 fi
 
-apt-get update -y
-apt-get install -y nginx
+# Create a simple HTML page
+echo "Hello World!" > /var/www/html/index.html
 
-mkdir -p /var/www/html
-printf 'Holberton School\n' > /var/www/html/index.html
-
-ln -sf /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
-
-cat > /etc/nginx/sites-available/default <<'EOF'
-server {
-    listen 80 default_server;
-    listen [::]:80 default_server;
-
-    root /var/www/html;
-    index index.html index.htm;
-
-    server_name _;
-    add_header X-Served-By $hostname always;
-}
-EOF
-
+# Test nginx configuration
 nginx -t
-service nginx restart || systemctl restart nginx
+
+# Restart nginx to apply changes (without using systemctl)
+service nginx restart
+
