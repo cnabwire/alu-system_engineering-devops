@@ -1,45 +1,10 @@
 #!/usr/bin/env bash
-# Configure Nginx with a 301 redirect for /redirect_me and a root page
+# Configure Nginx so /redirect_me returns a 301 redirect
 
-set -e
+sudo apt-get update
+sudo apt-get install -y nginx
 
-if [ "$(id -u)" -ne 0 ]; then
-    if command -v sudo >/dev/null 2>&1; then
-        SUDO="sudo"
-    else
-        echo "This script must be run as root or with sudo." >&2
-        exit 1
-    fi
-else
-    SUDO=""
-fi
+grep -q "location /redirect_me" /etc/nginx/sites-available/default || \
+sudo sed -i '/server_name _;/a \\n\tlocation /redirect_me {\n\t\treturn 301 https://www.youtube.com/watch?v=dQw4w9WgXcQ;\n\t}' /etc/nginx/sites-available/default
 
-$SUDO apt-get update -y
-$SUDO apt-get install -y nginx
-
-$SUDO mkdir -p /var/www/html
-$SUDO tee /var/www/html/index.html >/dev/null <<'EOF'
-Holberton School
-EOF
-
-$SUDO tee /etc/nginx/sites-available/default >/dev/null <<'EOF'
-server {
-    listen 80 default_server;
-    listen [::]:80 default_server;
-    root /var/www/html;
-    index index.html index.htm;
-    server_name _;
-
-    location = /redirect_me {
-        return 301 https://www.youtube.com/watch?v=QH2-TGUlwu4;
-    }
-
-    location / {
-        try_files $uri $uri/ =404;
-    }
-}
-EOF
-
-$SUDO ln -sf /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
-$SUDO nginx -t
-$SUDO service nginx restart || $SUDO service nginx start
+sudo service nginx restart
