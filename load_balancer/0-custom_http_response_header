@@ -1,34 +1,10 @@
 #!/usr/bin/env bash
-# Script that configures Nginx with a custom HTTP response header
+#Custom http response headers
 
-# Update package list
-apt-get update -y
+sudo apt-get update
+sudo apt-get install nginx -y
 
-# Install nginx
-apt-get install nginx -y
-
-# Get the hostname of the server
-HOSTNAME=$(hostname)
-
-# Backup original default config
-cp /etc/nginx/sites-available/default /etc/nginx/sites-available/default.backup
-
-# Add the custom header to the nginx config
-# Insert the add_header directive in the server block
-sed -i "/server_name _;/a \\\tadd_header X-Served-By $HOSTNAME;" /etc/nginx/sites-available/default
-
-# If the above doesn't work (server_name not found), try another approach
-# Add it after the 'listen' directives
-if ! grep -q "X-Served-By" /etc/nginx/sites-available/default; then
-    sed -i "/listen \[::\]:80 default_server;/a \\\tadd_header X-Served-By $HOSTNAME;" /etc/nginx/sites-available/default
-fi
-
-# Create a simple HTML page
-echo "Hello World!" > /var/www/html/index.html
-
-# Test nginx configuration
-nginx -t
-
-# Restart nginx to apply changes (without using systemctl)
-service nginx restart
+grep -q "add_header X-Served-By" /etc/nginx/sites-available/default || 
+sudo sed -i '/server_name _;/a\ \tadd_header X-Served-By $hostname always;' /etc/nginx/sites-available/default
+sudo service nginx restart
 
