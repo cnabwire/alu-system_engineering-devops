@@ -3,14 +3,29 @@
 
 set -e
 
-apt-get update -y
-apt-get install -y nginx
+if [ "$(id -u)" -ne 0 ]; then
+    if command -v sudo >/dev/null 2>&1; then
+        SUDO="sudo"
+    else
+        echo "This script must be run as root or with sudo." >&2
+        exit 1
+    fi
+else
+    SUDO=""
+fi
 
-mkdir -p /var/www/html
-printf 'Holberton School\n' > /var/www/html/index.html
-printf '%s\n' "Ceci n'est pas une page" > /var/www/html/404.html
+$SUDO apt-get update -y
+$SUDO apt-get install -y nginx
 
-cat > /etc/nginx/sites-available/default <<EOF
+$SUDO mkdir -p /var/www/html
+$SUDO tee /var/www/html/index.html >/dev/null <<'EOF'
+Holberton School
+EOF
+$SUDO tee /var/www/html/404.html >/dev/null <<'EOF'
+Ceci n'est pas une page
+EOF
+
+$SUDO tee /etc/nginx/sites-available/default >/dev/null <<'EOF'
 server {
     listen 80 default_server;
     listen [::]:80 default_server;
@@ -19,7 +34,7 @@ server {
     server_name _;
 
     location / {
-        try_files \$uri \$uri/ =404;
+        try_files $uri $uri/ =404;
     }
 
     error_page 404 /404.html;
@@ -30,6 +45,6 @@ server {
 }
 EOF
 
-ln -sf /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
-nginx -t
-service nginx restart
+$SUDO ln -sf /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
+$SUDO nginx -t
+$SUDO service nginx restart || $SUDO service nginx start
