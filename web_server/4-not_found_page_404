@@ -21,9 +21,6 @@ $SUDO mkdir -p /var/www/html
 $SUDO tee /var/www/html/index.html >/dev/null <<'EOF'
 Holberton School
 EOF
-$SUDO tee /var/www/html/404.html >/dev/null <<'EOF'
-Ceci n'est pas une page
-EOF
 
 $SUDO tee /etc/nginx/sites-available/default >/dev/null <<'EOF'
 server {
@@ -41,10 +38,12 @@ server {
 
     location = /404.html {
         internal;
+        default_type text/html;
+        return 404 "Ceci n'est pas une page\n";
     }
 }
 EOF
 
 $SUDO ln -sf /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
 $SUDO nginx -t
-$SUDO service nginx restart || $SUDO service nginx start
+$SUDO nginx -s reload 2>/dev/null || $SUDO nginx
