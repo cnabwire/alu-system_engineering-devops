@@ -34,10 +34,12 @@ server {
         try_files $uri $uri/ =404;
     }
 
+    error_page 404 =200 /404.html;
+
     location = /404.html {
         internal;
-        default_type text/html;
-        return 404 "Ceci n'est pas une page\n";
+        default_type text/plain;
+        return 200 'Ceci n\'est pas une page';
     }
 }
 EOF
