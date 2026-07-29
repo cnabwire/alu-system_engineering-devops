@@ -31,9 +31,10 @@ if [ ! -f /etc/ssl/certs/ha_proxy_ssl.pem ]; then
         -keyout /etc/ssl/private/ha_proxy_ssl.key \
         -out /etc/ssl/certs/ha_proxy_ssl.crt >/dev/null 2>&1
     cat /etc/ssl/certs/ha_proxy_ssl.crt /etc/ssl/private/ha_proxy_ssl.key > /etc/ssl/certs/ha_proxy_ssl.pem
-    chmod 600 /etc/ssl/certs/ha_proxy_ssl.pem
-    chown haproxy:haproxy /etc/ssl/certs/ha_proxy_ssl.pem >/dev/null 2>&1 || true
 fi
+
+chmod 600 /etc/ssl/certs/ha_proxy_ssl.pem
+chown haproxy:haproxy /etc/ssl/certs/ha_proxy_ssl.pem >/dev/null 2>&1 || true
 
 cat > /etc/default/haproxy <<'EOF'
 ENABLED=1
