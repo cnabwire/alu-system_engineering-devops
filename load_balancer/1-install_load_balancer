@@ -88,8 +88,10 @@ frontend balancer_https_in
 
 backend balancer_http_out
     balance roundrobin
-    server web-01 web-01:80 check
-    server web-02 web-02:80 check
+    option httpchk GET /
+    http-check expect status 200
+    server web-01 172.20.0.11:80 check
+    server web-02 172.20.0.12:80 check
     http-response set-header X-Served-By %[srv_name]
 EOF
 
