@@ -1,44 +1,52 @@
 #!/usr/bin/env bash
 # Installs HAProxy and configures a round-robin load balancer for web-01 and web-02.
 
-set -e
+set -euo pipefail
 
 apt-get update
 apt-get install -y haproxy
 
-echo "ENABLED=1" > /etc/default/haproxy
-mv /etc/haproxy/haproxy.cfg /etc/haproxy/haproxy.cfg.original 2>/dev/null || true
-touch /etc/haproxy/haproxy.cfg
+hostnamectl set-hostname lb-01
 
-cat > /etc/haproxy/haproxy.cfg <<EOF
+cat > /etc/default/haproxy <<'EOF'
+ENABLED=1
+EOF
+
+mv /etc/haproxy/haproxy.cfg /etc/haproxy/haproxy.cfg.original 2>/dev/null || true
+cat > /etc/haproxy/haproxy.cfg <<'EOF'
 global
     log /dev/log local0
-    maxconn 2000
+    log /dev/log local1 notice
+    chroot /var/lib/haproxy
+    stats socket /run/haproxy/admin.sock mode 660 level admin
+    stats timeout 30s
     user haproxy
     group haproxy
+    daemon
+    maxconn 2000
 
 defaults
     log global
     mode http
     option httplog
     option dontlognull
-    retries 3
-    option redispatch
     timeout connect 5000
-    timeout client 10000
-    timeout server 10000
+    timeout client 50000
+    timeout server 50000
 
-listen hbnb
-    bind 0.0.0.0:80
-    mode http
-    stats enable
-    stats uri /haproxy?stats
+frontend http-in
+    bind *:80
+    default_backend webservers
+
+backend webservers
     balance roundrobin
-    option httpclose
     option forwardfor
-    server web-01 172.25.0.11:80 check
-    server web-02 172.25.0.12:80 check
+    http-response set-header X-Served-By %[srv_name]
+    server web-01 18.207.206.213:80 check
+    server web-02 54.211.113.26:80 check
 EOF
 
+service haproxy restart
+update-rc.d haproxy defaults
+
 echo "Configured HAProxy to balance traffic between web-01 and web-02"
-service haproxy start
