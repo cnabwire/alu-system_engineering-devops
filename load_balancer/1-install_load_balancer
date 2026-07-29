@@ -4,44 +4,55 @@
 
 set -u
 
+if [ "$(id -u)" -ne 0 ]; then
+    if command -v sudo >/dev/null 2>&1; then
+        SUDO="sudo"
+    else
+        echo "sudo is required to run this script"
+        exit 1
+    fi
+else
+    SUDO=""
+fi
+
 if ! command -v apt-get >/dev/null 2>&1; then
     echo "apt-get is required to configure this machine"
     exit 1
 fi
 
-if ! DEBIAN_FRONTEND=noninteractive apt-get update >/dev/null 2>&1; then
+if ! DEBIAN_FRONTEND=noninteractive "$SUDO" apt-get update >/dev/null 2>&1; then
     echo "Failed to update package lists"
     exit 1
 fi
 
-if ! DEBIAN_FRONTEND=noninteractive apt-get install -y haproxy >/dev/null 2>&1; then
+if ! DEBIAN_FRONTEND=noninteractive "$SUDO" apt-get install -y haproxy >/dev/null 2>&1; then
     echo "Failed to install HAProxy"
     exit 1
 fi
 
 if command -v hostnamectl >/dev/null 2>&1; then
-    hostnamectl set-hostname lb-01 >/dev/null 2>&1 || true
+    "$SUDO" hostnamectl set-hostname lb-01 >/dev/null 2>&1 || true
 fi
 
-mkdir -p /etc/haproxy /etc/ssl/certs /etc/ssl/private
+"$SUDO" mkdir -p /etc/haproxy /etc/ssl/certs /etc/ssl/private
 
 if [ ! -f /etc/ssl/certs/ha_proxy_ssl.pem ]; then
-    openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+    "$SUDO" openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
         -subj "/CN=localhost" \
         -keyout /etc/ssl/private/ha_proxy_ssl.key \
         -out /etc/ssl/certs/ha_proxy_ssl.crt >/dev/null 2>&1
-    cat /etc/ssl/certs/ha_proxy_ssl.crt /etc/ssl/private/ha_proxy_ssl.key > /etc/ssl/certs/ha_proxy_ssl.pem
+    "$SUDO" sh -c 'cat /etc/ssl/certs/ha_proxy_ssl.crt /etc/ssl/private/ha_proxy_ssl.key > /etc/ssl/certs/ha_proxy_ssl.pem'
 fi
 
-chmod 600 /etc/ssl/certs/ha_proxy_ssl.pem
-chown haproxy:haproxy /etc/ssl/certs/ha_proxy_ssl.pem >/dev/null 2>&1 || true
+"$SUDO" chmod 600 /etc/ssl/certs/ha_proxy_ssl.pem
+"$SUDO" chown haproxy:haproxy /etc/ssl/certs/ha_proxy_ssl.pem >/dev/null 2>&1 || true
 
-cat > /etc/default/haproxy <<'EOF'
+"$SUDO" tee /etc/default/haproxy >/dev/null <<'EOF'
 ENABLED=1
 EOF
 
-mv /etc/haproxy/haproxy.cfg /etc/haproxy/haproxy.cfg.original 2>/dev/null || true
-cat > /etc/haproxy/haproxy.cfg <<'EOF'
+"$SUDO" mv /etc/haproxy/haproxy.cfg /etc/haproxy/haproxy.cfg.original 2>/dev/null || true
+"$SUDO" tee /etc/haproxy/haproxy.cfg >/dev/null <<'EOF'
 global
     log /dev/log local0
     log /dev/log local1 notice
@@ -82,12 +93,7 @@ backend balancer_http_out
     http-response set-header X-Served-By %[srv_name]
 EOF
 
-if command -v systemctl >/dev/null 2>&1; then
-    systemctl restart haproxy >/dev/null 2>&1 || service haproxy restart >/dev/null 2>&1 || true
-    systemctl enable haproxy >/dev/null 2>&1 || true
-else
-    service haproxy restart >/dev/null 2>&1 || true
-fi
+"$SUDO" service haproxy restart >/dev/null 2>&1 || true
 
 echo "web-01"
 echo "web-02"
